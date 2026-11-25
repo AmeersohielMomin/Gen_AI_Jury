@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      const stored = localStorage.getItem("color-scheme");
+      if (stored === "light" || stored === "dark") {
+        document.querySelector('meta[name="color-scheme"]').content = stored;
+      }
+    } catch (_) {}
+  </script>
+  <title>Overview | GenAI Jury — Medical Imaging &amp; cGAN Studio</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link visually-hidden">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">GJ</span>
+        <div>
+          <span class="brand-title">GenAI Jury Studio</span>
+          <span class="brand-subtitle">Topic 146 · ISIC 2019 cGAN &amp; Healthcare Roadmap</span>
+        </div>
+      </div>
+
+      <nav class="primary-nav" aria-label="Primary">
+        <button type="button" class="nav-btn" data-view="overview" aria-current="page">Overview</button>
+        <button type="button" class="nav-btn" data-view="analyzer">Live Analyzer &amp; Grad-CAM</button>
+        <button type="button" class="nav-btn" data-view="jury-lab">Interactive Jury Lab</button>
+        <button type="button" class="nav-btn" data-view="roadmap">Future Roadmap</button>
+      </nav>
+
+      <div class="header-actions">
+        <span class="research-pill" title="Research prototype — not for clinical diagnosis">
+          <span aria-hidden="true">⚕</span> Research Prototype
+        </span>
+        <button type="button" id="theme-toggle" class="icon-btn" aria-label="Toggle color theme">
+          <span class="theme-icon-light" aria-hidden="true">☀</span>
+          <span class="theme-icon-dark" aria-hidden="true">☾</span>
+          <span class="theme-label">Theme</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="live-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+  <main id="main-content" class="container" tabindex="-1">
+    <!-- VIEW 1: OVERVIEW -->
+    <section id="view-overview" class="app-view" aria-labelledby="overview-heading">
+      <div class="hero-card">
+        <div class="hero-copy">
+          <p class="eyebrow">Controlled Generative AI Evaluation · ISIC 2019 Dermoscopy</p>
+          <h1 id="overview-heading">Can a Conditional GAN Improve Minority-Class Skin Lesion Detection?</h1>
+          <p class="hero-desc">
+            We compare three leakage-safe EfficientNet-B0 arms on <strong>3,664 held-out real lesions</strong>
+            to isolate synthetic image diversity from class-frequency repetition — and audit why a 128px DCGAN
+            failed to beat the real-only baseline.
+          </p>
+          <div class="hero-cta-row">
+            <button type="button" class="btn-primary" data-jump-view="analyzer">Launch Live Grad-CAM Analyzer</button>
+            <button type="button" class="btn-secondary" data-jump-view="jury-lab" data-jump-tab="tab-quiz">Play 24-Image Realism Quiz</button>
+            <button type="button" class="btn-ghost" data-jump-view="roadmap">Explore Future MRI / CT / X-Ray Vision</button>
+          </div>
+        </div>
+        <aside class="verdict-callout" aria-label="Scientific Verdict">
+          <div class="callout-badge">Jury Key Finding</div>
+          <p class="callout-headline">Real-Only Baseline Outperformed cGAN Augmentation</p>
+          <p class="callout-text">
+            <strong>real_only</strong> achieved <strong>0.354 SCC F1</strong> (PR-AUC 0.340) vs.
+            <strong>0.308</strong> for <strong>cgan_scc</strong>. Checkerboard artifacts and discriminator
+            saturation produced a <strong>0.928</strong> real-vs-fake detector AUC, illustrating synthetic domain shift.
+          </p>
+        </aside>
+      </div>
+
+      <div class="kpi-grid" id="overview-kpis">
+        <article class="kpi-card">
+          <span class="kpi-label">Total Real ISIC 2019 Lesions</span>
+          <strong class="kpi-value" id="kpi-total-images">25,331</strong>
+          <span class="kpi-sub" id="kpi-split-sub">18,623 train · 3,044 val · 3,664 test (0 group leakage)</span>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Target SCC Baseline F1</span>
+          <strong class="kpi-value" id="kpi-baseline-f1">0.354</strong>
+          <span class="kpi-sub">95% Group-Bootstrap CI [0.230, 0.466] · PR-AUC 0.340</span>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">cGAN Augmented SCC F1</span>
+          <strong class="kpi-value" id="kpi-cgan-f1">0.308</strong>
+          <span class="kpi-sub">Matched +600 SCC control · Repeated Real: 0.307</span>
+        </article>
+        <article class="kpi-card kpi-warn">
+          <span class="kpi-label">Synthetic Detector AUC</span>
+          <strong class="kpi-value" id="kpi-detector-auc">0.928</strong>
+          <span class="kpi-sub">963/1,200 passed pHash &gt; 4, yet trivial stats separate real vs fake</span>
+        </article>
+      </div>
+
+      <div class="two-col-grid">
+        <article class="panel-card">
+          <div class="card-header">
+            <div>
+              <h2>Training-Set Class Imbalance (18,623 Real Images)</h2>
+              <p class="muted">22:1 ratio between Nevus (NV: 9,454) and minority target SCC (429)</p>
+            </div>
+          </div>
+          <figure class="chart-figure">
+            <div id="chart-imbalance" class="svg-chart-host"></div>
+            <figcaption class="muted">All three arms use identical class-balanced WeightedRandomSampler probabilities; only SCC image diversity varies.</figcaption>
+          </figure>
+        </article>
+
+        <article class="panel-card">
+          <div class="card-header">
+            <div>
+              <h2>3-Arm Controlled Experimental Protocol</h2>
+              <p class="muted">Strict lesion-group separation via StratifiedGroupKFold (seed 146)</p>
+            </div>
+          </div>
+          <div id="arm-protocol-cards" class="protocol-stack"></div>
+          <div class="safety-note">
+            <strong>Clinical Safety Guardrail:</strong> No synthetic image ever enters validation or test sets. Visual grids and pHash screening are quality checks, not clinical validation.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- VIEW 2: LIVE ANALYZER & GRAD-CAM -->
+    <section id="view-analyzer" class="app-view" hidden aria-labelledby="analyzer-heading">
+      <div class="section-head">
+        <div>
+          <h1 id="analyzer-heading">Live Skin-Lesion Analyzer &amp; Grad-CAM Studio</h1>
+          <p class="muted">Run inference across all 3 trained EfficientNet-B0 checkpoints simultaneously and inspect 7×7 → 224×224 spatial attention maps.</p>
+        </div>
+        <button type="button" id="open-report-btn" class="btn-primary" disabled>Preliminary Technical Report</button>
+      </div>
+
+      <div class="analyzer-controls panel-card">
+        <div class="upload-zone" id="upload-dropzone">
+          <label for="lesion-file-input" class="upload-label">
+            <span class="upload-title">Upload Dermoscopic Image (PNG / JPEG, max 10 MB)</span>
+            <span class="muted">Drop an image here or click to browse local files</span>
+          </label>
+          <input id="lesion-file-input" type="file" accept="image/png,image/jpeg">
+        </div>
+
+        <div class="control-stack">
+          <div class="control-group">
+            <label for="gradcam-mode-select">Grad-CAM Target Attribution</label>
+            <select id="gradcam-mode-select">
+              <option value="predicted">Top Predicted Class (Model Focus)</option>
+              <option value="scc">Target Minority Class (SCC Evidence)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="cam-view-select">Visualization Layer</label>
+            <select id="cam-view-select">
+              <option value="overlay">Grad-CAM Overlay (Blended)</option>
+              <option value="heatmap">Pure Spatial Heatmap (Inferno)</option>
+              <option value="original">Cropped 224×224 Input</option>
+            </select>
+          </div>
+          <div class="control-actions">
+            <button type="button" id="run-upload-btn" class="btn-primary" disabled>Analyze Uploaded Image</button>
+          </div>
+        </div>
+      </div>
+
+      <article class="panel-card">
+        <div class="card-header">
+          <div>
+            <h2>Curated Test &amp; Synthetic Case Gallery</h2>
+            <p class="muted">Click any held-out ISIC 2019 lesion or cGAN candidate to inspect how augmentation shifted classifier decisions and spatial attention.</p>
+          </div>
+          <div class="filter-pills" role="group" aria-label="Filter gallery cases">
+            <button type="button" class="pill-btn active" data-sample-filter="all">All Cases</button>
+            <button type="button" class="pill-btn" data-sample-filter="SCC">SCC Cases</button>
+            <button type="button" class="pill-btn" data-sample-filter="other">Other Real Diagnoses</button>
+            <button type="button" class="pill-btn" data-sample-filter="synthetic">cGAN Synthetic SCC</button>
+          </div>
+        </div>
+        <div id="sample-gallery" class="sample-gallery"></div>
+      </article>
+
+      <div id="analysis-results-shell" class="panel-card" hidden>
+        <div class="analysis-summary-bar" id="analysis-summary-bar"></div>
+        <div id="analysis-arm-grid" class="arm-inference-grid"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: INTERACTIVE JURY LAB -->
+    <section id="view-jury-lab" class="app-view" hidden aria-labelledby="jurylab-heading">
+      <div class="section-head">
+        <div>
+          <h1 id="jurylab-heading">Interactive Jury Lab</h1>
+          <p class="muted">Audit held-out test metrics, inspect 80-epoch cGAN saturation, sample live synthetic images, and take the blinded 24-panel realism survey.</p>
+        </div>
+      </div>
+
+      <div class="tabs-shell">
+        <div class="tablist" role="tablist" aria-label="Jury Lab Sections">
+          <button type="button" role="tab" id="tab-benchmark" aria-selected="true" tabindex="0">3-Arm Benchmark &amp; Confusion Audit</button>
+          <button type="button" role="tab" id="tab-cgan-diag" aria-selected="false" tabindex="-1">cGAN Diagnostics &amp; Live Sampler</button>
+          <button type="button" role="tab" id="tab-quiz" aria-selected="false" tabindex="-1">Blinded 24-Panel Realism Quiz</button>
+        </div>
+
+        <!-- SUB-TAB 1: BENCHMARK -->
+        <div role="tabpanel" id="panel-benchmark" aria-labelledby="tab-benchmark" tabindex="0">
+          <div class="panel-body">
+            <div class="two-col-grid">
+              <article class="sub-card">
+                <h3>SCC Precision-Recall Curves (Held-Out Test Set)</h3>
+                <p class="muted">3,664 real lesions (103 SCC positive). Real-only leads across the high-precision recall operating region.</p>
+                <div id="chart-pr-curves" class="svg-chart-host"></div>
+              </article>
+
+              <article class="sub-card">
+                <h3>SCC F1-Score with 95% Group-Bootstrap CI</h3>
+                <p class="muted">1,000 lesion-group bootstrap resamples preserving multi-image lesions together.</p>
+                <div id="chart-bootstrap-ci" class="svg-chart-host"></div>
+              </article>
+            </div>
+
+            <div class="two-col-grid">
+              <article class="sub-card">
+                <div class="card-header">
+                  <div>
+                    <h3>8×8 Confusion Matrix Explorer</h3>
+                    <p class="muted">Inspect true vs. predicted diagnosis counts across active ISIC classes.</p>
+                  </div>
+                  <div class="control-inline">
+                    <label for="cm-arm-select">Arm:</label>
+                    <select id="cm-arm-select">
+                      <option value="real_only">Real Only</option>
+                      <option value="repeated_real_scc">Repeated Real SCC</option>
+                      <option value="cgan_scc">cGAN SCC</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="confusion-matrix-host" class="cm-host"></div>
+              </article>
+
+              <article class="sub-card">
+                <h3>Validation Macro-F1 Across 12 Epochs</h3>
+                <p class="muted">Checkpoints selected strictly by highest validation Macro-F1 without test-set peeking.</p>
+                <div id="chart-val-history" class="svg-chart-host"></div>
+              </article>
+            </div>
+
+            <article class="sub-card">
+              <div class="card-header">
+                <div>
+                  <h3>Per-Class Test Performance Breakdown</h3>
+                  <p class="muted">Displays precision, recall, F1, and support for the selected arm across all 8 active diagnoses.</p>
+                </div>
+              </div>
+              <div tabindex="0" role="region" aria-labelledby="per-class-caption" class="table-wrapper">
+                <table class="responsive-table" id="per-class-table">
+                  <caption id="per-class-caption">Held-out test set per-class classification metrics</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Diagnosis</th>
+                      <th scope="col">Clinical Name</th>
+                      <th scope="col">Precision</th>
+                      <th scope="col">Recall</th>
+                      <th scope="col">F1-Score</th>
+                      <th scope="col">Support</th>
+                    </tr>
+                  </thead>
+                  <tbody id="per-class-tbody"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 2: cGAN DIAGNOSTICS & LIVE SAMPLER -->
+        <div role="tabpanel" id="panel-cgan-diag" aria-labelledby="tab-cgan-diag" hidden="until-found">
+          <div class="panel-body">
+            <div class="two-col-grid">
+              <article class="sub-card">
+                <div class="card-header">
+                  <div>
+                    <h3>80-Epoch Training Grid Progression</h3>
+                    <p class="muted">Fixed-noise samples across all diagnosis embeddings. Note 4×4 ConvTranspose2d grid artifacts.</p>
+                  </div>
+                  <strong id="epoch-badge" class="metric-pill">Epoch 80</strong>
+                </div>
+                <div class="epoch-scrubber">
+                  <label for="epoch-slider">Epoch:</label>
+                  <input id="epoch-slider" type="range" min="0" max="16" step="1" value="16">
+                </div>
+                <figure class="epoch-figure">
+                  <img id="epoch-grid-img" src="/api/media/epoch/80" alt="cGAN generated sample grid at epoch 80">
+                  <figcaption class="muted">Tiles correspond to MEL, NV, BCC, AK, BKL, DF, VASC, SCC, UNK embeddings.</figcaption>
+                </figure>
+              </article>
+
+              <article class="sub-card">
+                <h3>Generator vs. Discriminator Hinge Loss (80 Epochs)</h3>
+                <p class="muted">Discriminator loss pinned near <code>2.000</code> from epoch 3 onward — indicating weak/saturated gradient equilibrium.</p>
+                <div id="chart-cgan-loss" class="svg-chart-host"></div>
+              </article>
+            </div>
+
+            <div class="two-col-grid">
+              <article class="sub-card">
+                <h3>pHash Screening &amp; Domain-Shift Detector</h3>
+                <p class="muted">963 of 1,200 candidates passed pHash distance &gt; 4, yet a simple 12-feature color/edge LogisticRegression achieved <strong>0.928 ROC-AUC</strong>.</p>
+                <div id="chart-phash-hist" class="svg-chart-host"></div>
+              </article>
+
+              <article class="sub-card">
+                <h3>Live cGAN Conditional Sampler (cgan_latest.pt)</h3>
+                <p class="muted">Sample 128×128 images directly from the trained Epoch-80 generator to inspect artifacts live.</p>
+                <form id="cgan-sample-form" class="inline-form">
+                  <div class="field">
+                    <label for="cgan-diag-select">Diagnosis</label>
+                    <select id="cgan-diag-select">
+                      <option value="SCC" selected>SCC (Squamous Cell Carcinoma)</option>
+                      <option value="MEL">MEL (Melanoma)</option>
+                      <option value="NV">NV (Melanocytic Nevus)</option>
+                      <option value="BCC">BCC (Basal Cell Carcinoma)</option>
+                      <option value="AK">AK (Actinic Keratosis)</option>
+                      <option value="BKL">BKL (Benign Keratosis)</option>
+                      <option value="DF">DF (Dermatofibroma)</option>
+                      <option value="VASC">VASC (Vascular Lesion)</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="cgan-seed-input">Random Seed</label>
+                    <input id="cgan-seed-input" type="number" min="0" max="999999" value="146">
+                  </div>
+                  <div class="field field-btn">
+                    <button type="submit" id="cgan-generate-btn" class="btn-primary">Generate 4 Samples</button>
+                  </div>
+                </form>
+                <div id="cgan-live-grid" class="cgan-live-grid"></div>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 3: BLINDED REALISM QUIZ -->
+        <div role="tabpanel" id="panel-quiz" aria-labelledby="tab-quiz" hidden="until-found">
+          <div class="panel-body">
+            <article class="sub-card">
+              <div class="quiz-toolbar">
+                <div>
+                  <h3>Blinded 24-Panel Visual Realism Quiz</h3>
+                  <p class="muted">12 real ISIC SCC images + 12 cGAN-generated SCC images shuffled blindly. Server verifies against <code>PRIVATE_answer_key.csv</code>.</p>
+                </div>
+                <div class="quiz-actions">
+                  <span id="quiz-progress-text" class="metric-pill">0 / 24 answered</span>
+                  <button type="button" id="quiz-reset-btn" class="btn-secondary">Reset</button>
+                  <button type="button" id="quiz-submit-btn" class="btn-primary">Submit &amp; Reveal Score</button>
+                </div>
+              </div>
+
+              <div id="quiz-score-banner" class="quiz-score-banner" hidden></div>
+              <div id="quiz-grid" class="quiz-grid"></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: FUTURE ROADMAP HUB -->
+    <section id="view-roadmap" class="app-view" hidden aria-labelledby="roadmap-heading">
+      <div class="section-head">
+        <div>
+          <h1 id="roadmap-heading">Future Things &amp; Multi-Modal Healthcare Roadmap</h1>
+          <p class="muted">From Topic 146 dermoscopy prototype to GenAI v2 architecture fixes and multi-modal MRI, CT, X-Ray, and Histopathology workflows.</p>
+        </div>
+      </div>
+
+      <article class="panel-card">
+        <div class="card-header">
+          <div>
+            <h2>1. cGAN v1 → GenAI v2 Engineering Upgrade Blueprint</h2>
+            <p class="muted" id="roadmap-cgan-summary"></p>
+          </div>
+        </div>
+        <div id="roadmap-diff-grid" class="diff-grid"></div>
+      </article>
+
+      <article class="panel-card">
+        <div class="card-header">
+          <div>
+            <h2>2. Multi-Modal Healthcare Imaging Expansion</h2>
+            <p class="muted">Select a clinical modality to inspect target inputs, preprocessing stack, explainability outputs, and validation gates.</p>
+          </div>
+        </div>
+        <div id="modality-selector" class="filter-pills" role="group" aria-label="Select imaging modality"></div>
+        <div id="modality-detail" class="modality-detail"></div>
+      </article>
+
+      <div class="two-col-grid">
+        <article class="panel-card">
+          <h2>3. Hardware Scaling Strategy</h2>
+          <div id="hardware-tiers-list" class="stack-list"></div>
+        </article>
+
+        <article class="panel-card">
+          <h2>4. Responsible AI &amp; Governance Controls</h2>
+          <div id="rai-controls-list" class="stack-list"></div>
+        </article>
+      </div>
+
+      <article class="panel-card">
+        <h2>5. End-to-End 9-Phase Methodology (Idea to Intelligent Solution)</h2>
+        <div id="methodology-timeline" class="phase-grid"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>
+        <strong>GenAI Jury — Topic 146 Research Prototype.</strong>
+        Evaluated on ISIC 2019 (CC-BY-NC). Visual realism surveys and perceptual hashes do not constitute clinical validation.
+      </p>
+    </div>
+  </footer>
+
+  <!-- NATIVE MODAL DIALOG FOR PRELIMINARY REPORT -->
+  <dialog id="report-dialog" class="report-dialog" closedby="any" aria-labelledby="report-dialog-title">
+    <div class="dialog-head">
+      <h2 id="report-dialog-title">Preliminary Technical Assessment Report</h2>
+      <button type="button" id="close-report-dialog" class="icon-btn" aria-label="Close report dialog">✕</button>
+    </div>
+    <div class="dialog-body">
+      <div class="field">
+        <label for="reviewer-notes-input">Optional Reviewer / Jury Notes</label>
+        <textarea id="reviewer-notes-input" rows="2" placeholder="Record visual observations (e.g., Grad-CAM focuses on lesion center vs ruler/vignette)..."></textarea>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" id="refresh-report-btn" class="btn-secondary">Update Report</button>
+        <button type="button" id="download-md-btn" class="btn-secondary">Download Markdown</button>
+        <button type="button" id="print-report-btn" class="btn-primary">Print / Save PDF</button>
+      </div>
+      <iframe id="report-preview-frame" title="Preliminary Technical Report Preview" class="report-frame"></iframe>
+    </div>
+  </dialog>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
